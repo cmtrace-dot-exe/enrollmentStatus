@@ -25,13 +25,13 @@ param (
 			$taskAction = New-ScheduledTaskAction `
 				-WorkingDirectory "$env:windir\system32\windowspowershell\v1.0" `
 				-Execute "Powershell.exe" `
-				-Argument $("-NoProfile -ExecutionPolicy Bypass -File '$env:public\enrollmentStatus\enrollmentStatus.ps1' -log -logPath $logPath")
+				-Argument $("-NoProfile -ExecutionPolicy Bypass -File $env:public\enrollmentStatus\enrollmentStatus.ps1 -log -logPath $logPath")
 		}
 		elseif (-not $log) {
 			$taskAction = New-ScheduledTaskAction `
 				-WorkingDirectory "$env:windir\system32\windowspowershell\v1.0" `
 				-Execute "Powershell.exe" `
-				-Argument $("-NoProfile -ExecutionPolicy Bypass -File '$env:public\enrollmentStatus\enrollmentStatus.ps1")
+				-Argument $("-NoProfile -ExecutionPolicy Bypass -File $env:public\enrollmentStatus\enrollmentStatus.ps1")
 			}
 	
 	# create task trigger/schedule
