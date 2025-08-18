@@ -1,3 +1,14 @@
+############################################################################################################
+### File copy and scheduled task creation for Entra/Intune lock screen enrollmentStatus Script
+### Mike O'Leary | mikeoleary.net | @cmtrace-dot-exe 
+############################################################################################################
+
+param (
+        [int]$repetitionInterval = 5,
+		[switch]$log,
+		[string]$logPath = "$env:public\enrollmentStatus\$env:computername.log"
+    )
+
 # copy enrollmentStatus files to public user folder
 	xcopy "$PSScriptRoot\enrollmentStatus" "$env:public\enrollmentStatus" /e /s /y /h /i
 # preserve original lockscreen for later restoration
@@ -7,14 +18,24 @@
 # create 'step.txt' file and write current step for later reference
 	"01" | Set-Content "$env:public\enrollmentStatus\step.txt"
 
-# Create enrollmentStatus scheduled task, firing at a five minute interval
-	# Create a new task action
-		$taskAction = New-ScheduledTaskAction `
-			-WorkingDirectory "$env:public\enrollmentStatus" `
-			-Execute "enrollmentStatus.bat"
+# Create enrollmentStatus scheduled task, firing at interval defined in $repetitionInterval
 
+	# Create a new task action
+		if ($log) {
+			$taskAction = New-ScheduledTaskAction `
+				-WorkingDirectory "$env:windir\system32\windowspowershell\v1.0" `
+				-Execute "Powershell.exe" `
+				-Argument $("-NoProfile -ExecutionPolicy Bypass -File '$env:public\enrollmentStatus\enrollmentStatus.ps1' -log -logPath $logPath")
+		}
+		elseif (-not $log) {
+			$taskAction = New-ScheduledTaskAction `
+				-WorkingDirectory "$env:windir\system32\windowspowershell\v1.0" `
+				-Execute "Powershell.exe" `
+				-Argument $("-NoProfile -ExecutionPolicy Bypass -File '$env:public\enrollmentStatus\enrollmentStatus.ps1")
+			}
+	
 	# create task trigger/schedule
-		$taskTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 05)
+		$taskTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes $repetitionInterval)
 
 	# The name of the scheduled task.
 		$taskName = "enrollmentStatus"

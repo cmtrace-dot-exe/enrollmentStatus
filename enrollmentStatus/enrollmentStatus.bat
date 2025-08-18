@@ -1,1 +1,0 @@
-%SystemRoot%\system32\windowspowershell\v1.0\Powershell.exe -NoProfile -ExecutionPolicy bypass -File "%~dp0enrollmentStatus.ps1"
