@@ -41,7 +41,7 @@ logwrite $(get-date), "-------------------------------"
 				Unregister-ScheduledTask -TaskName "enrollmentStatus" -Confirm:$false
 
 				# return lockscreen image to normal
-				copy-item "$env:public\enrollmentStatus\originalLockScreen.jpg" -destination "$env:windir\web\screen\LockScreen.jpg"
+				copy-item "$env:public\enrollmentStatus\originalLockScreen.jpg" -destination "$env:windir\web\screen\LockScreen.jpg" -force
 				Restart-Computer -force
 			}
 			else {
@@ -51,7 +51,7 @@ logwrite $(get-date), "-------------------------------"
 					logwrite $(get-date), "Changing lock screen wallpaper to reflect Entra Join and restarting computer..."
 				
 					# copy DO NOT USE step 02 wallpaper to lockscreen, iterate 'step.txt' and restart
-					copy-item "$PSScriptRoot\doNotUseEnrollmentPending_02.jpg" -destination "$env:windir\web\screen\LockScreen.jpg"
+					copy-item "$PSScriptRoot\doNotUseEnrollmentPending_02.jpg" -destination "$env:windir\web\screen\LockScreen.jpg" -force
 					# iterate step.txt file
 					"02" | Set-Content "$env:public\enrollmentStatus\step.txt"
 					

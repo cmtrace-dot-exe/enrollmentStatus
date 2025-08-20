@@ -12,9 +12,9 @@ param (
 # copy enrollmentStatus files to public user folder
 	xcopy "$PSScriptRoot\enrollmentStatus" "$env:public\enrollmentStatus" /e /s /y /h /i
 # preserve original lockscreen for later restoration
-	copy-item "$env:windir\web\screen\LockScreen.jpg" -destination "$env:public\enrollmentStatus\originalLockScreen.jpg"
+	copy-item "$env:windir\web\screen\LockScreen.jpg" -destination "$env:public\enrollmentStatus\originalLockScreen.jpg" -force
 # replace default logon screen wallpaper with first enrollment status jpg
-	copy-item "$PSScriptRoot\enrollmentStatus\doNotUseEnrollmentPending_01.jpg" -destination "$env:windir\web\screen\LockScreen.jpg"
+	copy-item "$PSScriptRoot\enrollmentStatus\doNotUseEnrollmentPending_01.jpg" -destination "$env:windir\web\screen\LockScreen.jpg" -force
 # create 'step.txt' file and write current step for later reference
 	"01" | Set-Content "$env:public\enrollmentStatus\step.txt"
 
