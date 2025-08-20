@@ -11,10 +11,23 @@ param (
 
 # copy enrollmentStatus files to public user folder
 	xcopy "$PSScriptRoot\enrollmentStatus" "$env:public\enrollmentStatus" /e /s /y /h /i
+# change default lock screen image permissions
+	takeown /f $env:windir\web\Screen\img100.jpg
+	icacls $env:windir\web\Screen\img100.jpg /Grant 'System:(F)'
 # preserve original lockscreen for later restoration
-	copy-item "$env:windir\web\screen\LockScreen.jpg" -destination "$env:public\enrollmentStatus\originalLockScreen.jpg" -force
+	copy-item "$env:windir\web\screen\img100.jpg" -destination "$env:public\enrollmentStatus\originalLockScreen.jpg" -force
 # replace default logon screen wallpaper with first enrollment status jpg
-	copy-item "$PSScriptRoot\enrollmentStatus\doNotUseEnrollmentPending_01.jpg" -destination "$env:windir\web\screen\LockScreen.jpg" -force
+	# copy-item "$PSScriptRoot\enrollmentStatus\doNotUseEnrollmentPending_01.jpg" -destination "$env:windir\web\screen\LockScreen.jpg" -force
+	copy-item "$PSScriptRoot\enrollmentStatus\doNotUseEnrollmentPending_01.jpg" -destination "$env:windir\web\screen\img100.jpg" -force
+# check for presence of registry paths, create if not present
+	if (-not (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization")) { New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP"}
+	if (-not (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP")) { New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP"}
+# create lockscreen registry entries
+	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "LockScreenImage" -Value "$env:windir\Web\Screen\img100.jpg" -PropertyType String -Force
+	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP" -Name "LockScreenImagePath" -Value "$env:windir\Web\Screen\img100.jpg" -PropertyType String -Force
+	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP" -Name "LockScreenImageUrl" -Value "$env:windir\Web\Screen\img100.jpg" -PropertyType String -Force
+	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP" -Name "LockScreenImageStatus" -Value "1" -PropertyType DWord -force
+
 # create 'step.txt' file and write current step for later reference
 	"01" | Set-Content "$env:public\enrollmentStatus\step.txt"
 
