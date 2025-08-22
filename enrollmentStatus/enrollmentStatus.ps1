@@ -5,8 +5,12 @@
 
 param (
 [switch] $log,
-[string] $logPath = "$env:public\enrollmentStatus\$env:computername.log"
+[string] $logPath = "$env:public\enrollmentStatus\$env:computername.log",
+[string] $stagingDirectory = "$env:public\enrollmentStatus"
 )
+
+# trim any trailing backslashes from $stagingDirectory so things don't go kablooie
+	$stagingDirectory = $stagingDirectory.trimend("\")
 
 # configure logging if $log is TRUE, log nothing if not
 if ($log) {
@@ -41,19 +45,19 @@ logwrite $(get-date), "-------------------------------"
 				Unregister-ScheduledTask -TaskName "enrollmentStatus" -Confirm:$false
 
 				# return lockscreen image to normal
-				copy-item "$env:public\enrollmentStatus\originalLockScreen.jpg" -destination "$env:windir\web\screen\img100.jpg" -force
+				copy-item "$stagingDirectory\originalLockScreen.jpg" -destination "$env:windir\web\screen\img100.jpg" -force
 				Restart-Computer -force
 			}
 			else {
 				# if entra joined but not intune enrolled, check value stored in 'step.txt' and change lock screen wallpaper if value is NOT "02"
-				if($(get-Content "$env:public\enrollmentStatus\step.txt") -NE "02"){ 
+				if($(get-Content "$stagingDirectory\step.txt") -NE "02"){ 
 					logwrite $(get-date), "Intune Enrolled: NO"
 					logwrite $(get-date), "Changing lock screen wallpaper to reflect Entra Join and restarting computer..."
 				
 					# copy DO NOT USE step 02 wallpaper to lockscreen, iterate 'step.txt' and restart
-					copy-item "$PSScriptRoot\doNotUseEnrollmentPending_02.jpg" -destination "$env:windir\web\screen\img100.jpg" -force
+					copy-item "$stagingDirectory\doNotUseEnrollmentPending_02.jpg" -destination "$env:windir\web\screen\img100.jpg" -force
 					# iterate step.txt file
-					"02" | Set-Content "$env:public\enrollmentStatus\step.txt"
+					"02" | Set-Content "$stagingDirectory\step.txt"
 					
 					Restart-Computer -force
 					exit
@@ -63,4 +67,5 @@ logwrite $(get-date), "-------------------------------"
 }
 else {
 	logwrite $(get-date), "Entra Joined: NO"
+	Start-ScheduledTask -TaskName "Automatic-Device-Join"
 }

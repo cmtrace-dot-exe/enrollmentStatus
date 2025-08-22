@@ -12,4 +12,8 @@ copyAndScheduleTask.ps1 optional parameters:
 -logpath string 
  [Default: $env:public\enrollmentStatus\$env:computername.log]
  Path and name of optional log.
+
+-stagingDirectory string
+[Default: "$env:public\enrollmentStatus"]
+Local staging directory for enrollmentStatus.ps1 and lock screen wallpaper.
 ```
