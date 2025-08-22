@@ -67,5 +67,4 @@ logwrite $(get-date), "-------------------------------"
 }
 else {
 	logwrite $(get-date), "Entra Joined: NO"
-	Start-ScheduledTask -TaskName "Automatic-Device-Join"
 }
